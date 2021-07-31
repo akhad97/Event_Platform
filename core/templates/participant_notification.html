@@ -1,0 +1,133 @@
+{% extends 'base_template.html' %}
+{% block page_title %}
+Send Notification
+{% endblock page_title %}
+{% block main_content %}
+    <!-- Main content -->
+    <section class="content">
+      <div class="container-fluid">
+
+
+           <div class="row">
+          <div class="col-12">
+            <div class="card">
+              <div class="card-header">
+                <h3 class="card-title">Participant</h3>
+
+                <div class="card-tools">
+                  <div class="input-group input-group-sm" style="width: 150px;">
+                    <input type="text" name="table_search" class="form-control float-right" placeholder="Search">
+
+                    <div class="input-group-append">
+                      <button type="submit" class="btn btn-default"><i class="fas fa-search"></i></button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <!-- /.card-header -->
+              <div class="card-body table-responsive p-0">
+                <table class="table table-hover text-nowrap">
+                  <thead>
+                    <tr>
+                      <th>ID</th>
+                      <!-- <th>First Name</th> -->
+                      <!-- <th>Last Name</th> -->
+                      <th>User Name</th>
+                      <th>Full Name</th>
+                      <th>Email</th>
+                      <th>Action</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                  {% for participant in participants %}
+                    <tr>
+                      <td>{{ participant.id }}</td>
+                      <!-- <td>{{ participant.user.first_name }}</td> -->
+                      <!-- <td>{{ participant.user.last_name }}</td> -->
+                      <td>{{ participant.username }}</td>
+                      <td>{{ participant.full_name }}</td>
+                      <td>{{ participant.email }}</td>
+                      <!-- <td>{{ participant.address }}</td> -->
+                      <td><a href="#" class="btn btn-success show_notification" data-toggle="modal" data-target="#myModal">Send Notification</a></td>
+                    </tr>
+                  {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+              <!-- /.card-body -->
+            </div>
+            <!-- /.card -->
+          </div>
+        </div>
+      </div>
+    </section>
+
+<div class="modal fade" id="myModal" role="dialog">
+    <div class="modal-dialog">
+
+      <!-- Modal content-->
+      <!-- <form action="">
+      {% csrf_token %} -->
+      <div class="modal-content">
+        <div class="modal-header">
+          <h4 class="modal-title">Send Notification to <span id="name_span"></span></h4>
+            <button type="button" class="close" data-dismiss="modal">&times;</button>
+        </div>
+        <div class="modal-body">
+          <div class="form-group">
+            
+            
+            <input type="text" name="message" class="form-control" id="message_not">
+             <input type="hidden"  name="participant_id" class="form-control" id="participant_id">
+          </div>
+          <div class="form-group">
+            <button class="btn btn-info btn-block send_notification_btn" type="button">Send Notification</button>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        </div>
+      </div>
+    <!-- </form> -->
+
+    </div>
+  </div>
+    <!-- /.content -->
+{% endblock main_content %}
+{% block custom_js %}
+<script>
+  $(".show_notification").click(function(){
+      var participant_id=$(this).parents("tr").children("td:eq(0)").text();
+      var participant_name=$(this).parents("tr").children("td:eq(3)").text();
+      console.log(participant_id);
+      $("#participant_id").val(participant_id);
+      $("#name_span").text(participant_name);
+
+  });
+
+  $(".send_notification_btn").click(function(){
+      var id=$("#participant_id").val();
+      var message=$("#message_not").val();
+      sendNotification(id,message);
+  });
+
+  function sendNotification(id,message){
+           $.ajax({
+            url:'{% url 'send_participant_notification' %}',
+            type:'POST',
+            data:{id:id,message:message},
+            // headers: { 'X-CSRFToken': getCookie("csrftoken")}
+            
+        })
+        .done(function(response){
+            if(response=="True"){
+                alert("Message Sent");
+            }
+            else{
+                alert("Failed to Send Message");
+            }
+        });
+  }
+</script>
+
+{% endblock custom_js %}
